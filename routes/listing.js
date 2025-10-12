@@ -25,7 +25,7 @@ const validateListing = (req, res, next) => {
 router.get("/", async (req, res) => {
   //can also leave the route string empty
   let listings = await Listing.find();
-  console.log("Total number of listings: ", listings.length);
+  console.log("Total number of listings are: ", listings.length);
   res.render("listings/index.ejs", { listings });
 });
 
