@@ -21,6 +21,7 @@ const validateListing = (req, res, next) => {
   }
 };
 
+<<<<<<< HEAD
 //Displays all listings with optional search & category filter
 router.get("/", wrapAsync(async (req, res) => {
   let { category, q } = req.query;
@@ -44,6 +45,15 @@ router.get("/", wrapAsync(async (req, res) => {
     searchQuery: q || "",
   });
 }));
+=======
+//Displays all listings
+router.get("/", async (req, res) => {
+  //can also leave the route string empty
+  let listings = await Listing.find();
+  console.log("Total number of listings are: ", listings.length);
+  res.render("listings/index.ejs", { listings });
+});
+>>>>>>> 70b915863afb6457b44bbde606a5473f605fabc1
 
 //Returns a page for creating a new listing
 router.get("/new", redirectPath, isLoggedIn, (req, res) => {
