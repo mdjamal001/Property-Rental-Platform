@@ -1,0 +1,91 @@
+<% layout("/layouts/boilerplate.ejs") %>
+
+<div class="container my-5">
+  <div class="row justify-content-center">
+    <div class="col-12 col-md-10 col-lg-8">
+      
+      <!-- Profile Header Hero Card -->
+      <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-4 bg-white">
+        <div class="p-4 p-md-5 text-center position-relative" style="background: linear-gradient(135deg, #fff5f5 0%, #ffe3e3 100%);">
+          <!-- Avatar Icon with Ring -->
+          <div class="d-inline-block position-relative mb-3">
+            <div class="bg-white rounded-circle p-2 shadow-sm d-flex align-items-center justify-content-center" style="width: 100px; height: 100px; margin: 0 auto;">
+              <i class="fa-solid fa-circle-user text-danger" style="font-size: 5.5rem;"></i>
+            </div>
+          </div>
+
+          <h2 class="fw-bold mb-1 text-dark"><%= user.username %></h2>
+          <p class="text-muted mb-3"><i class="fa-regular fa-envelope me-1"></i><%= user.email || 'Registered User' %></p>
+          
+          <div class="d-flex justify-content-center gap-2">
+            <span class="badge bg-danger-subtle text-danger border border-danger-subtle rounded-pill px-3 py-2">
+              <i class="fa-solid fa-shield-halved me-1"></i> Verified Account
+            </span>
+            <span class="badge bg-light text-dark border rounded-pill px-3 py-2">
+              <i class="fa-regular fa-calendar-check me-1"></i> Member
+            </span>
+          </div>
+        </div>
+
+        <!-- Dashboard Stat Grid -->
+        <div class="card-body p-4 p-md-5">
+          <h5 class="fw-bold mb-4 text-dark"><i class="fa-solid fa-chart-pie text-danger me-2"></i>Account Overview</h5>
+
+          <div class="row g-3 mb-5">
+            <!-- Stat 1: Total Bookings -->
+            <div class="col-12 col-sm-6">
+              <a href="/bookings/my-bookings" class="text-decoration-none">
+                <div class="p-4 rounded-4 bg-light border border-0 hover-shadow transition-all d-flex align-items-center justify-content-between">
+                  <div>
+                    <span class="text-muted small fw-semibold d-block text-uppercase mb-1">Total Trips Booked</span>
+                    <h3 class="fw-bold text-dark mb-0"><%= userBookings %></h3>
+                  </div>
+                  <div class="bg-white p-3 rounded-circle shadow-sm text-danger fs-3 d-flex align-items-center justify-content-center" style="width: 54px; height: 54px;">
+                    <i class="fa-solid fa-suitcase-rolling"></i>
+                  </div>
+                </div>
+              </a>
+            </div>
+
+            <!-- Stat 2: Properties Listed -->
+            <div class="col-12 col-sm-6">
+              <a href="/listings" class="text-decoration-none">
+                <div class="p-4 rounded-4 bg-light border border-0 hover-shadow transition-all d-flex align-items-center justify-content-between">
+                  <div>
+                    <span class="text-muted small fw-semibold d-block text-uppercase mb-1">Properties Listed</span>
+                    <h3 class="fw-bold text-dark mb-0"><%= userListings %></h3>
+                  </div>
+                  <div class="bg-white p-3 rounded-circle shadow-sm text-danger fs-3 d-flex align-items-center justify-content-center" style="width: 54px; height: 54px;">
+                    <i class="fa-solid fa-house-chimney-window"></i>
+                  </div>
+                </div>
+              </a>
+            </div>
+          </div>
+
+          <!-- Quick Action Buttons -->
+          <h5 class="fw-bold mb-3 text-dark"><i class="fa-solid fa-sliders text-danger me-2"></i>Quick Actions</h5>
+          <div class="row g-3">
+            <div class="col-12 col-sm-6">
+              <a href="/bookings/my-bookings" class="btn btn-outline-danger w-100 py-3 rounded-3 fw-semibold d-flex align-items-center justify-content-center gap-2">
+                <i class="fa-solid fa-receipt"></i> View My Bookings
+              </a>
+            </div>
+            <div class="col-12 col-sm-6">
+              <a href="/listings/new" class="btn btn-outline-dark w-100 py-3 rounded-3 fw-semibold d-flex align-items-center justify-content-center gap-2">
+                <i class="fa-solid fa-house-medical"></i> Add New Property
+              </a>
+            </div>
+            <div class="col-12">
+              <a href="/logout" class="btn btn-danger w-100 py-3 rounded-3 fw-semibold d-flex align-items-center justify-content-center gap-2 shadow-sm">
+                <i class="fa-solid fa-right-from-bracket"></i> Sign Out of Account
+              </a>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>

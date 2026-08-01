@@ -1,29 +1,46 @@
 <div class="nav-expanded sticky-top">
-  <nav class="navbar navbar-expand-sm bg-body-tertiary">
-    <div class="container-fluid">
-      <a class="navbar-brand" href="/listings"><i class="fa-regular fa-compass"></i>&nbsp;WanderNest</a>
+  <nav class="navbar navbar-expand-sm bg-body-tertiary shadow-sm py-2">
+    <div class="container-fluid px-4">
+      <a class="navbar-brand d-flex align-items-center" href="/listings">
+        <i class="fa-solid fa-house-chimney-window text-danger fs-3 me-2"></i>
+        <span class="fw-semibold fs-4 text-danger" style="letter-spacing: -0.5px;">StayHere</span>
+      </a>
 
-      <form class="d-flex ms-auto" role="search">
-        <input class="form-control me-2 search-input" type="search" placeholder="Search" aria-label="Search">
-        <button class="btn btn-danger search-btn" type="submit">Search</button>
+      <form class="d-flex mx-auto search-form" role="search" action="/listings" method="GET">
+        <input class="form-control me-2 search-input" type="search" name="q" placeholder="Search by title, location, country..." aria-label="Search" value="<%= typeof searchQuery !== 'undefined' ? searchQuery : '' %>">
+        <button class="btn btn-danger search-btn rounded-pill px-4" type="submit"><i class="fa-solid fa-magnifying-glass"></i></button>
       </form>
-      <ul class="navbar-nav ms-auto">
-        <li class="nav-item me-5">
-          <a class="nav-link" href="/listings/new">Add your place</a>
-        </li>
+
+      <div class="d-flex align-items-center ms-auto gap-4">
         <% if(!user){ %>
-          <li class="nav-item">
-            <a class="nav-link" href="/signin">Sign In</a>
-          </li>
-          <li class="nav-item">
-            <a class="btn btn-danger" href="/signup">Sign Up</a>
-          </li>
-          <% }else{ %>
-            <li class="nav-item">
-              <a class="btn btn-danger" href="/logout">Logout</a>
-            </li>
-            <% } %>
-      </ul>
+          <a class="nav-link nav-link-animated fw-normal text-secondary fs-6" href="/listings/new">Add your place</a>
+          <a class="btn btn-outline-secondary rounded-pill px-3" href="/signin">Sign In</a>
+          <a class="btn btn-danger rounded-pill px-3" href="/signup">Sign Up</a>
+        <% } else { %>
+          <a class="nav-link nav-link-animated fw-normal text-secondary fs-6" href="/listings/new">Add your place</a>
+          <a class="nav-link nav-link-animated fw-normal text-secondary fs-6" href="/bookings/my-bookings">My Bookings</a>
+          <div class="dropdown">
+            <button class="btn p-0 border-0 bg-transparent shadow-none" type="button" id="profileDropdown" data-bs-toggle="dropdown" aria-expanded="false" title="User Profile">
+              <i class="fa-solid fa-circle-user text-danger fs-2"></i>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 rounded-4 mt-2 p-2" aria-labelledby="profileDropdown" style="min-width: 220px;">
+              <li>
+                <div class="px-3 py-2 border-bottom">
+                  <div class="fw-bold text-dark"><%= user.username %></div>
+                  <div class="small text-muted"><%= user.email || 'Registered User' %></div>
+                </div>
+              </li>
+              <li>
+                <a class="dropdown-item py-2 rounded-2 mt-1" href="/profile"><i class="fa-solid fa-id-card me-2 text-danger"></i>User Profile</a>
+              </li>
+              <li><hr class="dropdown-divider my-1"></li>
+              <li>
+                <a class="dropdown-item py-2 rounded-2 text-danger" href="/logout"><i class="fa-solid fa-right-from-bracket me-2"></i>Logout</a>
+              </li>
+            </ul>
+          </div>
+        <% } %>
+      </div>
     </div>
   </nav>
 </div>
@@ -66,8 +83,8 @@
             <a href="/listings/new">Add your place</a>
           </li>
           <li>
-            <i class="fa-regular fa-calendar"></i>
-            <a href="#">Events</a>
+            <i class="fa-solid fa-receipt"></i>
+            <a href="/bookings/my-bookings">My Bookings</a>
           </li>
         </ul>
       </div>

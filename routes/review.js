@@ -17,13 +17,29 @@ const validateReview = (req, res, next) => {
   }
 };
 
-//POSTs a review for a particuar listing
+const Booking = require("../models/booking.js");
+
+//POSTs a review for a particular listing
 router.post(
   "/",
-  validateReview,
   isLoggedIn,
+  validateReview,
   wrapAsync(async (req, res) => {
-    let listing = await Listing.findById(req.params.id);
+    let listingId = req.params.id;
+
+    // Verify guest has stayed and checkout date has passed
+    const pastBooking = await Booking.findOne({
+      listing: listingId,
+      guest: req.user._id,
+      checkOut: { $lte: new Date() },
+    });
+
+    if (!pastBooking) {
+      req.flash("error", "You can only leave a rating and review after completing your stay (after checkout)!");
+      return res.redirect(`/listings/${listingId}`);
+    }
+
+    let listing = await Listing.findById(listingId);
     let review = new Review({ ...req.body.review, user: req.user });
 
     listing.reviews.push(review);
@@ -31,8 +47,8 @@ router.post(
     await review.save();
     await listing.save();
 
-    console.log("review saved!");
-    res.redirect(`/listings/${req.params.id}`);
+    req.flash("success", "Thank you for your review!");
+    res.redirect(`/listings/${listingId}`);
   })
 );
 

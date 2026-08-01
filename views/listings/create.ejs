@@ -1,48 +1,319 @@
 <% layout("/layouts/boilerplate.ejs") %>
-  <div class="row">
-    <div class="col-md-6 offset-md-3 col-10 offset-1">
-      <h1 class="mt-2">Create New Listing</h1>
-      <form action="/listings" method="post" class="needs-validation" novalidate enctype="multipart/form-data">
-        <div>
-          <label for="title" class="form-label">Title:</label>
-          <input type="text" name="title" class="form-control mb-1" placeholder="Enter title" required />
-          <div class="invalid-feedback">Title required</div>
-        </div>
+  <div class="row justify-content-center my-4">
+    <div class="col-md-8 col-lg-7 col-11">
+      <div class="card border-0 shadow-sm p-4 rounded-4">
+        <h2 class="mb-4 text-danger font-weight-bold"><i class="fa-solid fa-house-medical me-2"></i>Create New Listing
+        </h2>
+        <form action="/listings" method="post" class="needs-validation" novalidate enctype="multipart/form-data" onsubmit="return confirm('Are you sure you want to create this new listing?');">
 
-        <div>
-          <label for="description" class="form-label">Description:</label>
-          <textarea name="description" id="description" class="form-control mb-1" placeholder="Tell about the property"
-            rows="3" required></textarea>
-          <div class="invalid-feedback">Description required</div>
-        </div>
+          <!-- Basic Info -->
+          <div class="mb-3">
+            <label for="title" class="form-label font-weight-bold">Title</label>
+            <input type="text" name="title" id="title" class="form-control"
+              placeholder="e.g. Luxurious Beachfront Villa" required />
+            <div class="invalid-feedback">Title is required.</div>
+          </div>
 
-        <div>
-          <label for="price" class="form-label">Price:</label>
-          <input type="number" name="price" class="form-control mb-1" placeholder="Enter price per night" required />
-          <div class="invalid-feedback">Price required</div>
-        </div>
+          <div class="mb-3">
+            <label for="category" class="form-label font-weight-bold">Category</label>
+            <select name="category" id="category" class="form-select" required>
+              <option value="Farms">Farms</option>
+              <option value="Pools">Pools</option>
+              <option value="Mountains">Mountains</option>
+              <option value="Castles">Castles</option>
+              <option value="Lakes">Lakes</option>
+              <option value="Views">Views</option>
+              <option value="Arctic">Arctic</option>
+              <option value="Beachfront">Beachfront</option>
+              <option value="Cities">Cities</option>
+              <option value="Boats">Boats</option>
+              <option value="Skiing">Skiing</option>
+              <option value="Towers">Towers</option>
+            </select>
+          </div>
 
-        <div>
-          <label for="image" class="form-label">Image:</label>
-          <input type="file" name="image" id="image" class="form-control mb-1" placeholder="Enter Image URL/link"
-            value="" />
-        </div>
+          <div class="mb-3">
+            <label for="description" class="form-label font-weight-bold">Description</label>
+            <textarea name="description" id="description" class="form-control"
+              placeholder="Describe what makes your space special..." rows="3" required></textarea>
+            <div class="invalid-feedback">Description is required.</div>
+          </div>
 
-        <div>
-          <label for="city" class="form-label">City:</label>
-          <input type="text" name="city" class="form-control mb-1" required />
-          <div class="invalid-feedback">City required</div>
-        </div>
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <label for="price" class="form-label font-weight-bold">Price per night (&#8377;)</label>
+              <input type="number" name="price" id="price" class="form-control" placeholder="e.g. 2500" min="1"
+                required />
+              <div class="invalid-feedback">Valid price is required.</div>
+            </div>
+          </div>
 
-        <div>
-          <label for="country" class="form-label">Country:</label>
-          <input type="text" name="country" class="form-control mb-1" required />
-          <div class="invalid-feedback">Country required</div>
-        </div>
+          <!-- Occupancy Details -->
+          <div class="border rounded-3 p-3 mb-4 bg-light">
+            <h6 class="font-weight-bold mb-3"><i class="fa-solid fa-users me-2 text-danger"></i>Occupancy Details</h6>
+            <div class="row g-3">
+              <div class="col-6 col-sm-3">
+                <label for="guests" class="form-label small">Guests</label>
+                <input type="number" name="occupancy[guests]" id="guests" class="form-control" value="2" min="1"
+                  required />
+              </div>
+              <div class="col-6 col-sm-3">
+                <label for="bedrooms" class="form-label small">Bedrooms</label>
+                <input type="number" name="occupancy[bedrooms]" id="bedrooms" class="form-control" value="1" min="0"
+                  required />
+              </div>
+              <div class="col-6 col-sm-3">
+                <label for="beds" class="form-label small">Beds</label>
+                <input type="number" name="occupancy[beds]" id="beds" class="form-control" value="1" min="0" required />
+              </div>
+              <div class="col-6 col-sm-3">
+                <label for="bathrooms" class="form-label small">Bathrooms</label>
+                <input type="number" name="occupancy[bathrooms]" id="bathrooms" class="form-control" value="1" min="0"
+                  required />
+              </div>
+            </div>
+          </div>
 
-        <br />
-        <button class="btn btn-danger">Create</button>
-        <br /><br />
-      </form>
+          <!-- Card-based Appendable & Reorderable Multi-Image Upload -->
+          <div class="mb-4">
+            <label class="form-label font-weight-bold">Upload Photos (Add, drag to reorder, or remove)</label>
+            <input type="file" name="images" id="imagesInput" class="d-none" multiple accept="image/*" />
+
+            <div id="imageCardContainer" class="image-upload-wrapper">
+              <!-- Big '+' Card ALWAYS first on left -->
+              <div id="addImageCard" class="add-image-card" title="Click to add photos">
+                <i class="fa-solid fa-plus"></i>
+                <span>Add Photos</span>
+              </div>
+              <!-- Added image cards will append here moving to the right -->
+            </div>
+            <small class="text-muted d-block mt-2">Tip: Click <b>+ Add Photos</b> to append more images. Drag cards to
+              change photo display order.</small>
+          </div>
+
+          <!-- Location & Map Section -->
+          <div class="border rounded-3 p-3 mb-4 bg-light">
+            <h6 class="font-weight-bold mb-3"><i class="fa-solid fa-map-location-dot me-2 text-danger"></i>Location &
+              Map Pinning</h6>
+            <div class="row g-3 mb-3">
+              <div class="col-md-6">
+                <label for="city" class="form-label small">City</label>
+                <input type="text" name="city" id="cityInput" class="form-control" placeholder="e.g. Panaji" required />
+                <div class="invalid-feedback">City is required.</div>
+              </div>
+              <div class="col-md-6">
+                <label for="country" class="form-label small">Country</label>
+                <input type="text" name="country" id="countryInput" class="form-control" placeholder="e.g. India"
+                  required />
+                <div class="invalid-feedback">Country is required.</div>
+              </div>
+            </div>
+
+            <button type="button" id="locateBtn" class="btn btn-outline-danger btn-sm mb-3">
+              <i class="fa-solid fa-magnifying-glass-location me-1"></i> Find Location on Map
+            </button>
+
+            <p class="small text-muted mb-2">Drag the map pin below to pinpoint the exact location of your property:</p>
+            <div id="createMap" style="height: 300px; border-radius: 0.75rem;"></div>
+
+            <input type="hidden" name="lat" id="latInput" value="15.2993" />
+            <input type="hidden" name="lng" id="lngInput" value="73.8567" />
+            <small class="text-muted d-block mt-2">Selected Coordinates: <span id="coordsDisplay"
+                class="fw-bold">15.2993, 73.8567</span></small>
+          </div>
+
+          <!-- Amenities Selection (Equal Sized Option Cards) -->
+          <div class="mb-4">
+            <label class="form-label font-weight-bold mb-2">Amenities / Services Included</label>
+            <div class="amenities-grid-form">
+              <% const amenitiesList=[ { name: "Wifi" , icon: "fa-wifi" }, { name: "Free Parking" ,
+                icon: "fa-square-parking" }, { name: "Pool" , icon: "fa-water-ladder" }, { name: "Air Conditioning" ,
+                icon: "fa-snowflake" }, { name: "Kitchen" , icon: "fa-kitchen-set" }, { name: "Dedicated Workspace" ,
+                icon: "fa-laptop" }, { name: "Food Included" , icon: "fa-utensils" }, { name: "TV" , icon: "fa-tv" }, {
+                name: "Gym" , icon: "fa-dumbbell" }, { name: "Hot Tub" , icon: "fa-hot-tub-person" }, { name: "Washer" ,
+                icon: "fa-soap" }, { name: "BBQ Grill" , icon: "fa-fire-burner" } ]; %>
+                <% amenitiesList.forEach(item=> { %>
+                  <label class="amenity-option-card" for="amenity-<%= item.name.replace(/\s+/g, '') %>">
+                    <input class="d-none amenity-checkbox" type="checkbox" name="amenities" value="<%= item.name %>"
+                      id="amenity-<%= item.name.replace(/\s+/g, '') %>">
+                    <i class="fa-solid <%= item.icon %>"></i>
+                    <span>
+                      <%= item.name %>
+                    </span>
+                  </label>
+                  <% }) %>
+            </div>
+          </div>
+
+          <div class="d-grid gap-2">
+            <button class="btn btn-danger btn-lg rounded-3">Create Listing</button>
+          </div>
+        </form>
+      </div>
     </div>
   </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      // --- 1. Image Upload, Appending, Drag & Drop Reordering ---
+      const imagesInput = document.getElementById('imagesInput');
+      const addImageCard = document.getElementById('addImageCard');
+      const imageContainer = document.getElementById('imageCardContainer');
+      let uploadedFiles = [];
+
+      addImageCard.addEventListener('click', () => imagesInput.click());
+
+      imagesInput.addEventListener('change', function () {
+        const files = Array.from(this.files);
+        if (files.length > 0) {
+          uploadedFiles.push(...files);
+          renderImageCards();
+        }
+      });
+
+      function syncFileInput() {
+        const dt = new DataTransfer();
+        uploadedFiles.forEach(file => dt.items.add(file));
+        imagesInput.files = dt.files;
+      }
+
+      const form = document.querySelector('form');
+      if (form) {
+        form.addEventListener('submit', function () {
+          syncFileInput();
+        });
+      }
+
+      function renderImageCards() {
+        syncFileInput();
+
+        // Remove existing image cards (keep the '+' card)
+        const existingCards = imageContainer.querySelectorAll('.image-card-item');
+        existingCards.forEach(card => card.remove());
+
+        uploadedFiles.forEach((file, index) => {
+          const reader = new FileReader();
+          reader.onload = function (e) {
+            const card = document.createElement('div');
+            card.className = 'image-card-item';
+            card.draggable = true;
+            card.dataset.index = index;
+
+            card.innerHTML = `
+          <img src="${e.target.result}" alt="photo ${index + 1}">
+          <span class="badge-order">#${index + 1}</span>
+          <button type="button" class="remove-card-btn" title="Remove photo">&times;</button>
+        `;
+
+            // Remove photo logic
+            card.querySelector('.remove-card-btn').addEventListener('click', (evt) => {
+              evt.stopPropagation();
+              uploadedFiles.splice(index, 1);
+              renderImageCards();
+            });
+
+            // Drag and drop reordering
+            card.addEventListener('dragstart', (evt) => {
+              card.classList.add('dragging');
+              evt.dataTransfer.setData('text/plain', index);
+            });
+
+            card.addEventListener('dragend', () => {
+              card.classList.remove('dragging');
+            });
+
+            card.addEventListener('dragover', (evt) => {
+              evt.preventDefault();
+            });
+
+            card.addEventListener('drop', (evt) => {
+              evt.preventDefault();
+              const fromIndex = parseInt(evt.dataTransfer.getData('text/plain'));
+              const toIndex = index;
+              if (!isNaN(fromIndex) && fromIndex !== toIndex) {
+                const movedItem = uploadedFiles.splice(fromIndex, 1)[0];
+                uploadedFiles.splice(toIndex, 0, movedItem);
+                renderImageCards();
+              }
+            });
+
+            imageContainer.appendChild(card);
+          };
+          reader.readAsDataURL(file);
+        });
+      }
+
+      // --- 2. Amenities Option Cards Selection Toggle ---
+      const amenityCards = document.querySelectorAll('.amenity-option-card');
+      amenityCards.forEach(card => {
+        const checkbox = card.querySelector('.amenity-checkbox');
+        card.addEventListener('click', () => {
+          // Toggle checked state
+          checkbox.checked = !checkbox.checked;
+          if (checkbox.checked) {
+            card.classList.add('selected');
+          } else {
+            card.classList.remove('selected');
+          }
+        });
+      });
+
+      // --- 3. Map & Draggable Pin ---
+      let defaultLat = 15.2993; // Default Goa
+      let defaultLng = 73.8567;
+
+      const map = L.map('createMap').setView([defaultLat, defaultLng], 12);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; OpenStreetMap'
+      }).addTo(map);
+
+      const marker = L.marker([defaultLat, defaultLng], { draggable: true }).addTo(map);
+
+      function updateCoords(lat, lng) {
+        document.getElementById('latInput').value = lat.toFixed(6);
+        document.getElementById('lngInput').value = lng.toFixed(6);
+        document.getElementById('coordsDisplay').textContent = `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
+      }
+
+      marker.on('dragend', function (e) {
+        const position = marker.getLatLng();
+        updateCoords(position.lat, position.lng);
+      });
+
+      map.on('click', function (e) {
+        marker.setLatLng(e.latlng);
+        updateCoords(e.latlng.lat, e.latlng.lng);
+      });
+
+      // Geocoding on Locate Button Click
+      document.getElementById('locateBtn').addEventListener('click', function () {
+        const city = document.getElementById('cityInput').value.trim();
+        const country = document.getElementById('countryInput').value.trim();
+        const query = [city, country].filter(Boolean).join(', ');
+
+        if (!query) {
+          alert("Please enter a city or country first!");
+          return;
+        }
+
+        fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}`)
+          .then(res => res.json())
+          .then(data => {
+            if (data && data.length > 0) {
+              const lat = parseFloat(data[0].lat);
+              const lng = parseFloat(data[0].lon);
+              map.setView([lat, lng], 13);
+              marker.setLatLng([lat, lng]);
+              updateCoords(lat, lng);
+            } else {
+              alert("Location not found on map. Try adjusting your city or country name.");
+            }
+          })
+          .catch(err => {
+            console.error(err);
+            alert("Geocoding failed. Please set marker manually.");
+          });
+      });
+    });
+  </script>

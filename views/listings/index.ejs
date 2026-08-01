@@ -1,24 +1,35 @@
 <%- layout("/layouts/boilerplate.ejs") %>
-  <div class="row justify-content-center">
-    <div class="col-md-11 ">
-      <%- include("../includes/categories.ejs") %>
+<div class="row justify-content-center">
+  <div class="col-md-11">
+    <%- include("../includes/categories.ejs") %>
 
-        <div class="listings row justify-content-center me-1 ms-1">
-          <% for(listing of listings){ %>
-            <a href="/listings/<%= listing._id %>" class="col-md-4 col-sm-6 col-12">
-              <div class="card card-listing">
-                <img src="<%= listing.image.url %>" alt="Image" class="card-img-top" />
-                <div class="card-body">
-                  <h5 class="card-title">
-                    <%= listing.title %>
-                  </h5>
-                  <div class="card-text">
-                    <p>&#8377;<%= listing.price.toLocaleString("en-IN") %>/night</p>
-                  </div>
+    <% if(listings.length === 0){ %>
+      <div class="text-center py-5">
+        <i class="fa-solid fa-compass-drafting text-muted fs-1 mb-3"></i>
+        <h4 class="text-secondary">No listings found matching your search</h4>
+        <p class="text-muted">Try clearing your filters or searching for another location.</p>
+        <a href="/listings" class="btn btn-outline-danger mt-2">Clear All Filters</a>
+      </div>
+    <% } else { %>
+      <div class="listings row justify-content-center me-1 ms-1">
+        <% for(listing of listings){ %>
+          <a href="/listings/<%= listing._id %>" class="col-md-4 col-sm-6 col-12 text-decoration-none">
+            <div class="card card-listing border-0 shadow-sm rounded-4 overflow-hidden mb-4">
+              <img src="<%= (listing.images && listing.images.length > 0) ? listing.images[0].url : listing.image.url %>" alt="<%= listing.title %>" class="card-img-top" />
+              <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start">
+                  <h5 class="card-title text-dark font-weight-bold mb-1"><%= listing.title %></h5>
+                  <span class="badge bg-danger small"><%= listing.category || 'Trending' %></span>
+                </div>
+                <p class="text-muted small mb-2"><i class="fa-solid fa-location-dot me-1"></i><%= listing.city %>, <%= listing.country %></p>
+                <div class="card-text">
+                  <p class="text-dark font-weight-bold mb-0">&#8377;<%= listing.price.toLocaleString("en-IN") %> <span class="fw-normal text-muted fs-6">/ night</span></p>
                 </div>
               </div>
-            </a>
-            <% } %>
-        </div>
-    </div>
+            </div>
+          </a>
+        <% } %>
+      </div>
+    <% } %>
   </div>
+</div>

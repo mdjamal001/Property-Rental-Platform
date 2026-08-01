@@ -1,130 +1,431 @@
 <% layout("/layouts/boilerplate.ejs") %>
 
-  <div class="row justify-content-center">
-    <div class="col-11 col-md-6 col-sm-8">
-      <h2 class="mt-3">Listing details</h2>
-      <div class="card card-listing">
-        <img src="<%= listing.image.url %>" alt="Image" class="card-img-top" />
-        <br />
-        <div class="card-boody">
-          <h4 class="card-title">
-            <%= listing.title %>
-          </h4>
-          &#8377;<%= (listing.price).toLocaleString("en-IN") %>/night <br /><br />
-            <h5>Location</h5>
-            <hr />
-            <%= listing.city %>, <%= listing.country %> <br /><br />
-                <h5>Description</h5>
-                <hr />
-                <%= listing.description %> <br /><br /><br />
-                  <h5>Listed By: <%= listing.owner.username %>
-                  </h5>
-                  <br />
-                  <% if(currUser && currUser.username==listing.owner.username){ %>
-                    <div class="btns" style="display: flex">
-                      <form action="/listings/<%= listing._id %>/edit" method="get">
-                        <button class="btn btn-primary me-5">Edit</button>
-                      </form>
-                      <form action="/listings/<%= listing._id %>?_method=DELETE" method="post">
-                        <button class="btn btn-danger">Delete</button>
-                      </form>
-                    </div>
-                    <% } %>
+<% 
+const amenityIcons = {
+  "Wifi": "fa-wifi",
+  "Free Parking": "fa-square-parking",
+  "Pool": "fa-water-ladder",
+  "Air Conditioning": "fa-snowflake",
+  "Kitchen": "fa-kitchen-set",
+  "Dedicated Workspace": "fa-laptop",
+  "Food Included": "fa-utensils",
+  "TV": "fa-tv",
+  "Gym": "fa-dumbbell",
+  "Hot Tub": "fa-hot-tub-person",
+  "Washer": "fa-soap",
+  "BBQ Grill": "fa-fire-burner",
+  "Patio": "fa-chair",
+  "Ocean View": "fa-water"
+};
+%>
+
+<div class="row justify-content-center">
+  <div class="col-11 col-lg-10">
+    <div class="mt-3 mb-2">
+      <a href="/listings" class="text-decoration-none text-danger font-weight-bold"><i class="fa-solid fa-arrow-left me-1"></i> Back to all listings</a>
+    </div>
+    <h2 class="font-weight-bold mb-1"><%= listing.title %></h2>
+    <p class="text-muted"><i class="fa-solid fa-location-dot me-1"></i> <%= listing.city %>, <%= listing.country %> &bull; <span class="badge bg-danger"><%= listing.category || 'Trending' %></span></p>
+
+    <!-- Image Gallery Carousel -->
+    <% let imageList = (listing.images && listing.images.length > 0) ? listing.images : [{ url: listing.image.url }]; %>
+    <div id="listingCarousel" class="carousel slide listing-carousel mb-3" data-bs-ride="carousel">
+      <div class="carousel-inner">
+        <% imageList.forEach((img, idx) => { %>
+          <div class="carousel-item <%= idx === 0 ? 'active' : '' %>">
+            <img src="<%= img.url %>" class="d-block w-100" alt="<%= listing.title %> image <%= idx + 1 %>">
+          </div>
+        <% }) %>
+      </div>
+      <% if(imageList.length > 1) { %>
+        <button class="carousel-control-prev" type="button" data-bs-target="#listingCarousel" data-bs-slide="prev">
+          <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+          <span class="visually-hidden">Previous</span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#listingCarousel" data-bs-slide="next">
+          <span class="carousel-control-next-icon" aria-hidden="true"></span>
+          <span class="visually-hidden">Next</span>
+        </button>
+      <% } %>
+    </div>
+
+    <% if(imageList.length > 1) { %>
+      <div class="gallery-thumbs mb-4">
+        <% imageList.forEach((img, idx) => { %>
+          <img src="<%= img.url %>" class="gallery-thumb <%= idx === 0 ? 'active' : '' %>" data-bs-target="#listingCarousel" data-bs-slide-to="<%= idx %>">
+        <% }) %>
+      </div>
+    <% } %>
+
+    <div class="row g-4">
+      <!-- Left Column: Details, Description, Amenities, Map -->
+      <div class="col-md-7 col-lg-7">
+        <div class="card border-0 shadow-sm p-4 mb-4 rounded-4">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <div>
+              <h4 class="mb-1 text-danger font-weight-bold">&#8377;<%= (listing.price).toLocaleString("en-IN") %> <span class="fs-6 text-muted font-weight-normal">/ night</span></h4>
+              <p class="text-muted mb-0">Hosted by <strong><%= listing.owner ? listing.owner.username : 'Host' %></strong></p>
+            </div>
+            <span class="badge bg-light text-dark border p-2"><i class="fa-solid fa-layer-group text-danger me-1"></i> <%= listing.totalUnits || 1 %> rental unit(s) available</span>
+          </div>
+
+          <!-- Occupancy Info -->
+          <% if(listing.occupancy) { %>
+            <div class="d-flex flex-wrap gap-3 py-3 border-top border-bottom my-3">
+              <span><i class="fa-solid fa-user-group me-1 text-danger"></i> <%= listing.occupancy.guests || 2 %> guests</span> &bull;
+              <span><i class="fa-solid fa-bed me-1 text-danger"></i> <%= listing.occupancy.bedrooms || 1 %> bedrooms</span> &bull;
+              <span><i class="fa-solid fa-mattress-pillow me-1 text-danger"></i> <%= listing.occupancy.beds || 1 %> beds</span> &bull;
+              <span><i class="fa-solid fa-bath me-1 text-danger"></i> <%= listing.occupancy.bathrooms || 1 %> baths</span>
+            </div>
+          <% } %>
+
+          <h5 class="mt-2">Description</h5>
+          <p class="text-secondary"><%= listing.description %></p>
+
+          <!-- Amenities Section -->
+          <% if(listing.amenities && listing.amenities.length > 0) { %>
+            <hr class="my-4" />
+            <h5 class="mb-3">What this place offers</h5>
+            <div class="amenities-grid">
+              <% listing.amenities.forEach(amenity => { %>
+                <div class="amenity-card">
+                  <i class="fa-solid <%= amenityIcons[amenity] || 'fa-check' %> text-danger fs-5"></i>
+                  <span><%= amenity %></span>
+                </div>
+              <% }) %>
+            </div>
+          <% } %>
+
+          <% if(currUser && listing.owner && currUser.username === listing.owner.username){ %>
+            <div class="btns mt-4 d-flex gap-3">
+              <a href="/listings/<%= listing._id %>/edit" class="btn btn-primary px-4"><i class="fa-solid fa-pen me-1"></i> Edit Property</a>
+              <form action="/listings/<%= listing._id %>?_method=DELETE" method="post" onsubmit="return confirm('Are you sure you want to delete this listing? This action cannot be undone.');">
+                <button class="btn btn-danger px-4"><i class="fa-solid fa-trash me-1"></i> Delete Property</button>
+              </form>
+            </div>
+          <% } %>
+        </div>
+
+        <!-- Map Section -->
+        <div class="card border-0 shadow-sm p-4 mb-4 rounded-4">
+          <h4 class="mb-1"><i class="fa-solid fa-map-location-dot me-2 text-danger"></i>Where you'll be</h4>
+          <p class="text-muted"><%= listing.city %>, <%= listing.country %></p>
+          <div id="map"></div>
         </div>
       </div>
-      <hr /><br>
-    </div>
-  </div>
-  <div class="row justify-content-center">
-    <div class="col-md-6 col-sm-8 col-10">
-      <% if((currUser && listing.reviews.every((review)=>(review.user.username != currUser.username))) || !currUser ||
-        listing.reviews.length == 0){
-        %>
-        <h4>Leave a review</h4>
-        <form action="/listings/<%= listing._id %>/reviews" method="POST" class="mb-4 mt-3 needs-validation" novalidate>
-          <label for="review[rating]" class="form-label"> &nbsp;Rating: (1-5)</label><br />
-          <fieldset class="starability-grow" style="transform: scale(0.9);">
-            <input type="radio" id="no-rate" class="input-no-rate" name="review[rating]" value="0" checked
-              aria-label="No rating." />
-            <input type="radio" id="first-rate1" name="review[rating]" value="1" />
-            <label for="first-rate1" title="Terrible">1 star</label>
-            <input type="radio" id="first-rate2" name="review[rating]" value="2" />
-            <label for="first-rate2" title="Not good">2 stars</label>
-            <input type="radio" id="first-rate3" name="review[rating]" value="3" />
-            <label for="first-rate3" title="Average">3 stars</label>
-            <input type="radio" id="first-rate4" name="review[rating]" value="4" />
-            <label for="first-rate4" title="Very good">4 stars</label>
-            <input type="radio" id="first-rate5" name="review[rating]" value="5" />
-            <label for="first-rate5" title="Amazing">5 stars</label>
-          </fieldset>
 
-          <label for="review[review]" class="form-label">Review: </label><br />
-          <textarea name="review[review]" id="review" rows="5" placeholder="Write your review" class="form-control"
-            required></textarea>
-          <div class="invalid-feedback">Review can't be empty</div>
-          <br />
-          <button class="btn btn-outline-dark">Submit</button>
-        </form>
-        <hr />
-        <% } else{%>
+      <!-- Right Column: Sticky Booking Widget (Option A Instant Booking) -->
+      <div class="col-md-5 col-lg-5">
+        <div class="card border-0 shadow-lg p-4 rounded-4 sticky-top" style="top: 6rem; z-index: 10;">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h4 class="mb-0 font-weight-bold text-danger">&#8377;<%= listing.price.toLocaleString("en-IN") %> <span class="fs-6 text-muted font-weight-normal">/ night</span></h4>
+            <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1"><i class="fa-solid fa-bolt me-1"></i>Instant Book</span>
+          </div>
+
+          <form action="/listings/<%= listing._id %>/bookings" method="POST" id="bookingForm">
+            <% 
+              const formatLocalDate = (d) => {
+                const year = d.getFullYear();
+                const month = String(d.getMonth() + 1).padStart(2, '0');
+                const day = String(d.getDate()).padStart(2, '0');
+                return `${year}-${month}-${day}`;
+              };
+              const todayStr = formatLocalDate(new Date());
+              const tomorrowStr = formatLocalDate(new Date(Date.now() + 86400000));
+            %>
+            
+            <div class="border rounded-3 overflow-hidden mb-3">
+              <div class="row g-0 border-bottom">
+                <div class="col-6 border-end p-2 bg-light">
+                  <label for="checkIn" class="form-label small fw-bold mb-0 text-muted">CHECK-IN</label>
+                  <input type="date" name="checkIn" id="checkIn" class="form-control border-0 p-0 bg-transparent fw-bold" min="<%= todayStr %>" value="<%= todayStr %>" required>
+                </div>
+                <div class="col-6 p-2 bg-light">
+                  <label for="checkOut" class="form-label small fw-bold mb-0 text-muted">CHECKOUT</label>
+                  <input type="date" name="checkOut" id="checkOut" class="form-control border-0 p-0 bg-transparent fw-bold" min="<%= tomorrowStr %>" value="<%= tomorrowStr %>" required>
+                </div>
+              </div>
+              <div class="p-2 bg-light">
+                <label for="guestsCount" class="form-label small fw-bold mb-0 text-muted">GUESTS</label>
+                <select name="guestsCount" id="guestsCount" class="form-select border-0 p-0 bg-transparent fw-bold">
+                  <% let maxG = (listing.occupancy && listing.occupancy.guests) ? listing.occupancy.guests : 4; %>
+                  <% for(let i=1; i<=maxG; i++){ %>
+                    <option value="<%= i %>"><%= i %> guest<%= i > 1 ? 's' : '' %></option>
+                  <% } %>
+                </select>
+              </div>
+            </div>
+
+            <!-- Real-time Cost Summary -->
+            <div class="py-2 mb-3 border-top border-bottom" id="priceCalcBox">
+              <div class="d-flex justify-content-between mb-2">
+                <span id="nightlyCalcLabel">&#8377;<%= listing.price.toLocaleString("en-IN") %> &times; 1 night</span>
+                <span id="subtotalVal">&#8377;<%= listing.price.toLocaleString("en-IN") %></span>
+              </div>
+              <div class="d-flex justify-content-between mb-2 text-muted small">
+                <span>Taxes & Service Fees (15%)</span>
+                <span id="taxVal">&#8377;<%= Math.round(listing.price * 0.15).toLocaleString("en-IN") %></span>
+              </div>
+              <hr class="my-2">
+              <div class="d-flex justify-content-between fw-bold fs-5 text-dark">
+                <span>Total</span>
+                <span id="totalVal" class="text-danger">&#8377;<%= Math.round(listing.price * 1.15).toLocaleString("en-IN") %></span>
+              </div>
+            </div>
+
+            <% if(!currUser) { %>
+              <a href="/signin" class="btn btn-danger btn-lg w-100 rounded-3 font-weight-bold">Sign In to Reserve</a>
+            <% } else { %>
+              <button type="submit" class="btn btn-danger btn-lg w-100 rounded-3 font-weight-bold shadow-sm" id="reserveBtn">
+                <i class="fa-solid fa-credit-card me-2"></i>Pay & Reserve with Razorpay
+              </button>
+            <% } %>
+            <small class="text-muted text-center d-block mt-2"><i class="fa-solid fa-lock me-1"></i>Secure 256-bit Razorpay Checkout</small>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Razorpay Checkout Script -->
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", function() {
+        // --- 1. Map Script ---
+        const coords = <%- JSON.stringify(listing.geometry && listing.geometry.coordinates ? listing.geometry.coordinates : [73.8567, 15.2993]) %>;
+        const lng = coords[0];
+        const lat = coords[1];
+
+        const map = L.map('map').setView([lat, lng], 13);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          maxZoom: 19,
+          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+        }).addTo(map);
+
+        const marker = L.marker([lat, lng]).addTo(map);
+        marker.bindPopup("<b><%= listing.title %></b><br><%= listing.city %>, <%= listing.country %>").openPopup();
+
+        // --- 2. Price Calculation Script ---
+        const pricePerNight = <%= listing.price %>;
+        const checkInInput = document.getElementById('checkIn');
+        const checkOutInput = document.getElementById('checkOut');
+        const guestsCountInput = document.getElementById('guestsCount');
+        const nightlyCalcLabel = document.getElementById('nightlyCalcLabel');
+        const subtotalVal = document.getElementById('subtotalVal');
+        const taxVal = document.getElementById('taxVal');
+        const totalVal = document.getElementById('totalVal');
+
+        function recalculatePrice() {
+          const inDate = new Date(checkInInput.value);
+          const outDate = new Date(checkOutInput.value);
+
+          if (inDate && outDate && outDate > inDate) {
+            const diffTime = Math.abs(outDate - inDate);
+            const nights = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            
+            const subtotal = pricePerNight * nights;
+            const taxes = Math.round(subtotal * 0.15);
+            const total = subtotal + taxes;
+
+            nightlyCalcLabel.textContent = `₹${pricePerNight.toLocaleString('en-IN')} × ${nights} night${nights > 1 ? 's' : ''}`;
+            subtotalVal.textContent = `₹${subtotal.toLocaleString('en-IN')}`;
+            taxVal.textContent = `₹${taxes.toLocaleString('en-IN')}`;
+            totalVal.textContent = `₹${total.toLocaleString('en-IN')}`;
+          }
+        }
+
+        if(checkInInput && checkOutInput) {
+          checkInInput.addEventListener('change', function() {
+            const inDate = new Date(checkInInput.value);
+            const nextDay = new Date(inDate.getTime() + 86400000);
+            checkOutInput.min = nextDay.toISOString().split('T')[0];
+            if (new Date(checkOutInput.value) <= inDate) {
+              checkOutInput.value = nextDay.toISOString().split('T')[0];
+            }
+            recalculatePrice();
+          });
+
+          checkOutInput.addEventListener('change', recalculatePrice);
+        }
+
+        // --- 3. Razorpay Integration Handler ---
+        const bookingForm = document.getElementById('bookingForm');
+        if (bookingForm) {
+          bookingForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const checkIn = checkInInput.value;
+            const checkOut = checkOutInput.value;
+            const guestsCount = guestsCountInput.value;
+
+            const reserveBtn = document.getElementById('reserveBtn');
+            if (reserveBtn) {
+              reserveBtn.disabled = true;
+              reserveBtn.innerHTML = `<span class="spinner-border spinner-border-sm me-2" role="status"></span>Initializing Checkout...`;
+            }
+
+            try {
+              const res = await fetch('/listings/<%= listing._id %>/create-razorpay-order', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ checkIn, checkOut, guestsCount })
+              });
+
+              const data = await res.json();
+              if (!data.success) {
+                alert(data.message || "Failed to initialize booking.");
+                if (reserveBtn) {
+                  reserveBtn.disabled = false;
+                  reserveBtn.innerHTML = `<i class="fa-solid fa-credit-card me-2"></i>Pay & Reserve with Razorpay`;
+                }
+                return;
+              }
+
+              // Razorpay Modal Options
+              const options = {
+                key: data.key_id,
+                amount: data.order.amount,
+                currency: data.order.currency || "INR",
+                name: "StayHere",
+                description: `Stay Reservation: ${data.listingTitle}`,
+                image: "<%= (listing.images && listing.images.length > 0) ? listing.images[0].url : listing.image.url %>",
+                order_id: data.order.id,
+                handler: async function (response) {
+                  const verifyRes = await fetch('/listings/<%= listing._id %>/verify-razorpay-payment', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                      razorpay_order_id: response.razorpay_order_id,
+                      razorpay_payment_id: response.razorpay_payment_id,
+                      razorpay_signature: response.razorpay_signature,
+                      checkIn: data.checkIn,
+                      checkOut: data.checkOut,
+                      guestsCount: data.guestsCount,
+                      totalPrice: data.totalPrice
+                    })
+                  });
+
+                  const verifyData = await verifyRes.json();
+                  if (verifyData.success) {
+                    window.location.href = `/bookings/receipt/${verifyData.bookingId}`;
+                  } else {
+                    alert(verifyData.message || "Payment verification failed!");
+                    if (reserveBtn) {
+                      reserveBtn.disabled = false;
+                      reserveBtn.innerHTML = `<i class="fa-solid fa-credit-card me-2"></i>Pay & Reserve with Razorpay`;
+                    }
+                  }
+                },
+                modal: {
+                  ondismiss: function() {
+                    if (reserveBtn) {
+                      reserveBtn.disabled = false;
+                      reserveBtn.innerHTML = `<i class="fa-solid fa-credit-card me-2"></i>Pay & Reserve with Razorpay`;
+                    }
+                  }
+                },
+                prefill: {
+                  name: "<%= currUser ? currUser.username : '' %>",
+                  email: "<%= currUser ? currUser.email : '' %>"
+                },
+                theme: {
+                  color: "#dc3545"
+                }
+              };
+
+              const rzp1 = new Razorpay(options);
+              rzp1.open();
+            } catch (err) {
+              console.error("Razorpay Error:", err);
+              alert("An error occurred while connecting to Razorpay.");
+              if (reserveBtn) {
+                reserveBtn.disabled = false;
+                reserveBtn.innerHTML = `<i class="fa-solid fa-credit-card me-2"></i>Pay & Reserve with Razorpay`;
+              }
+            }
+          });
+        }
+      });
+    </script>
+
+  </div>
+</div>
+
+<div class="row justify-content-center mt-5">
+  <div class="col-11 col-lg-10">
+    <!-- Reviews Section -->
+    <div class="row justify-content-center">
+      <div class="col-md-8 col-sm-10 col-12">
+        <% let userReview = (currUser && listing.reviews) ? listing.reviews.find(r => r.user && r.user.username === currUser.username) : null; %>
+        
+        <% if (userReview) { %>
           <h4>Edit your review</h4>
-          <form
-            action="/listings/<%= listing._id %>/reviews/<%= listing.reviews.filter((review)=>review.user.username == currUser.username)[0]._id %>?_method=PATCH"
-            method="POST" class="mb-4 mt-3 needs-validation" novalidate>
+          <form action="/listings/<%= listing._id %>/reviews/<%= userReview._id %>?_method=PATCH" method="POST" class="mb-4 mt-3 needs-validation" novalidate onsubmit="return confirm('Are you sure you want to update your review?');">
             <label for="review[rating]" class="form-label">Rating: (1-5)</label><br />
             <fieldset class="starability-grow" style="transform: scale(0.9);">
-
-              <% let currRating=listing.reviews.filter((review)=>review.user.username == currUser.username)[0].rating %>
-
-                <input type="radio" id="first-rate1" name="review[rating]" value="1" <%=currRating==1 ? "checked" : ""
-                  %>/>
-                <label for="first-rate1" title="Terrible">1 star</label>
-                <input type="radio" id="first-rate2" name="review[rating]" value="2" <%=currRating==2 ? "checked" : ""
-                  %>/>
-                <label for="first-rate2" title="Not good">2 stars</label>
-                <input type="radio" id="first-rate3" name="review[rating]" value="3" <%=currRating==3 ? "checked" : ""
-                  %>/>
-                <label for="first-rate3" title="Average">3 stars</label>
-                <input type="radio" id="first-rate4" name="review[rating]" value="4" <%=currRating==4 ? "checked" : ""
-                  %>/>
-                <label for="first-rate4" title="Very good">4 stars</label>
-                <input type="radio" id="first-rate5" name="review[rating]" value="5" <%=currRating==5 ? "checked" : ""
-                  %>/>
-                <label for="first-rate5" title="Amazing">5 stars</label>
+              <% for(let i=1; i<=5; i++) { %>
+                <input type="radio" id="edit-rate<%= i %>" name="review[rating]" value="<%= i %>" <%= userReview.rating == i ? 'checked' : '' %> />
+                <label for="edit-rate<%= i %>" title="<%= i %> stars"><%= i %> star</label>
+              <% } %>
             </fieldset>
             <label for="review[review]" class="form-label">Review: </label><br />
-            <textarea name="review[review]" id="review" rows="5" placeholder="Write your review" class="form-control"
-              required><%= listing.reviews.filter((review)=>review.user.username == currUser.username)[0].review %></textarea>
+            <textarea name="review[review]" id="review" rows="4" class="form-control" required><%= userReview.review %></textarea>
             <div class="invalid-feedback">Review can't be empty</div>
             <br />
-            <button class="btn btn-primary">Edit</button>
+            <button class="btn btn-primary">Update Review</button>
           </form>
-          <form
-            action="/listings/<%= listing._id %>/reviews/<%= listing.reviews.filter((review)=>review.user.username == currUser.username)[0]._id %>?_method=DELETE"
-            method="POST">
-            <button class="btn btn-danger ">Delete</button>
+          <form action="/listings/<%= listing._id %>/reviews/<%= userReview._id %>?_method=DELETE" method="POST" onsubmit="return confirm('Are you sure you want to delete your review?');">
+            <button class="btn btn-danger mb-4">Delete Review</button>
           </form>
           <hr />
-          <% } %>
-            <!-- display reviews -->
-            <h4 class="mb-3">All Reviews</h4>
-            <% if(listing.reviews.length==0){ %>
-              <p>No Reviews yet</p>
-              <% }else{ %>
-                <div class="row mb-5">
-                  <% for(review of listing.reviews){ %>
-                    <div class="card p-3 col-sm-5 col-11 me-3 mb-3">
-                      <h5 class="card-title">
-                        <%= review.user.username %>
-                      </h5>
-                      <p class="starability-result" data-rating="<%= review.rating %>"
-                        style="transform: scale(0.75); position: relative; right: 1rem;">
+        <% } else if (currUser && typeof canReview !== 'undefined' && canReview) { %>
+          <h4>Leave a review</h4>
+          <form action="/listings/<%= listing._id %>/reviews" method="POST" class="mb-4 mt-3 needs-validation" novalidate>
+            <label for="review[rating]" class="form-label"> &nbsp;Rating: (1-5)</label><br />
+            <fieldset class="starability-grow" style="transform: scale(0.9);">
+              <input type="radio" id="no-rate" class="input-no-rate" name="review[rating]" value="0" checked aria-label="No rating." />
+              <input type="radio" id="first-rate1" name="review[rating]" value="1" />
+              <label for="first-rate1" title="Terrible">1 star</label>
+              <input type="radio" id="first-rate2" name="review[rating]" value="2" />
+              <label for="first-rate2" title="Not good">2 stars</label>
+              <input type="radio" id="first-rate3" name="review[rating]" value="3" />
+              <label for="first-rate3" title="Average">3 stars</label>
+              <input type="radio" id="first-rate4" name="review[rating]" value="4" />
+              <label for="first-rate4" title="Very good">4 stars</label>
+              <input type="radio" id="first-rate5" name="review[rating]" value="5" />
+              <label for="first-rate5" title="Amazing">5 stars</label>
+            </fieldset>
 
-                      </p>
-                      <%=review.review%>
-                    </div>
-                    <% } %>
-                      <% } %>
+            <label for="review[review]" class="form-label">Review: </label><br />
+            <textarea name="review[review]" id="review" rows="4" placeholder="Write your review..." class="form-control" required></textarea>
+            <div class="invalid-feedback">Review can't be empty</div>
+            <br />
+            <button class="btn btn-outline-dark">Submit Review</button>
+          </form>
+          <hr />
+        <% } else if (currUser) { %>
+          <div class="alert alert-light border shadow-sm p-3 mb-4 rounded-3 text-muted">
+            <i class="fa-solid fa-circle-info me-2 text-danger"></i>You can submit a rating and review after completing your stay (after checkout date) at this property.
+          </div>
+        <% } %>
+
+        <h4 class="mb-3">All Reviews</h4>
+        <% if(listing.reviews.length == 0){ %>
+          <p class="text-muted">No reviews yet. Be the first to leave a review!</p>
+        <% } else { %>
+          <div class="row mb-5 g-3">
+            <% for(review of listing.reviews){ %>
+              <div class="col-sm-6 col-12">
+                <div class="card p-3 h-100 border-0 shadow-sm rounded-3">
+                  <h6 class="card-title font-weight-bold mb-1"><i class="fa-solid fa-circle-user text-danger me-1"></i><%= review.user ? review.user.username : 'User' %></h6>
+                  <p class="starability-result mb-2" data-rating="<%= review.rating %>" style="transform: scale(0.75); position: relative; right: 1.5rem; top: -0.5rem;"></p>
+                  <p class="card-text text-secondary mb-0"><%= review.review %></p>
                 </div>
+              </div>
+            <% } %>
+          </div>
+        <% } %>
+      </div>
     </div>
   </div>
+</div>

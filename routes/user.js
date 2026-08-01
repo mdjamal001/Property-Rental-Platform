@@ -60,4 +60,15 @@ router.get("/logout", (req, res, next) => {
   });
 });
 
+// Profile route
+const Booking = require("../models/booking.js");
+const Listing = require("../models/listing.js");
+const { isLoggedIn } = require("../middlewares.js");
+
+router.get("/profile", isLoggedIn, async (req, res) => {
+  const userBookings = await Booking.countDocuments({ guest: req.user._id });
+  const userListings = await Listing.countDocuments({ owner: req.user._id });
+  res.render("users/profile.ejs", { userBookings, userListings });
+});
+
 module.exports = router;

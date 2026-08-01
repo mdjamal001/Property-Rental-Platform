@@ -1,5 +1,7 @@
 const express = require("express");
 require("dotenv").config();
+const dns = require("dns");
+dns.setServers(["8.8.8.8", "1.1.1.1"]);
 const mongoose = require("mongoose");
 const path = require("path");
 const ejsMate = require("ejs-mate");
@@ -16,6 +18,7 @@ const flash = require("connect-flash");
 const listingsRoute = require("./routes/listing.js");
 const reviewsRoute = require("./routes/review.js");
 const usersRoute = require("./routes/user.js");
+const bookingsRoute = require("./routes/booking.js");
 
 const app = express();
 
@@ -31,6 +34,7 @@ app.engine("ejs", ejsMate);
 app.set("views", path.join(__dirname, "/views"));
 app.use(express.static("public"));
 app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
 app.use(methodOverride("_method"));
 
 //middleware that logs info
@@ -82,11 +86,12 @@ app.use((req, res, next) => {
 });
 
 app.get("/", (req, res) => {
-  res.send("Root working!");
+  res.redirect("/listings");
 });
 
 app.use("/listings", listingsRoute);
 app.use("/listings/:id/reviews", reviewsRoute);
+app.use("/", bookingsRoute);
 app.use("/", usersRoute);
 
 // app.get("/demoUser", async (req, res) => {

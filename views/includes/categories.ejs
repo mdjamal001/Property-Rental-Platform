@@ -1,54 +1,63 @@
 <div class="categories-con">
-    <div class="category">
-        <i class="fa-solid fa-fire"></i>
-        Trending
-    </div>
-    <div class="category">
-        <i class="fa-solid fa-tractor"></i>
-        Farms
-    </div>
-    <div class="category">
-        <i class="fa-solid fa-water-ladder"></i>
-        Pools
-    </div>
-    <div class="category">
-        <i class="fa-solid fa-mountain"></i>
-        Mountains
-    </div>
-    <div class="category">
-        <i class="fa-brands fa-fort-awesome"></i>
-        Castles
-    </div>
-    <div class="category">
-        <i class="fa-solid fa-water"></i>
-        Lakes
-    </div>
-    <div class="category">
-        <i class="fa-solid fa-mountain-sun"></i>
-        Views
-    </div>
-    <div class="category">
-        <i class="fa-regular fa-snowflake"></i>
-        Arctic
-    </div>
-    <div class="category">
-        <i class="fa-solid fa-umbrella-beach"></i>
-        Beachfront
-    </div>
-    <div class="category">
-        <i class="fa-solid fa-city"></i>
-        Cities
-    </div>
-    <div class="category">
-        <i class="fa-solid fa-ship"></i>
-        Boats
-    </div>
-    <div class="category">
-        <i class="fa-solid fa-person-skiing-nordic"></i>
-        Skiing
-    </div>
-    <div class="category">
-        <i class="fa-solid fa-tower-observation"></i>
-        Towers
-    </div>
+  <% 
+  let currentCat = typeof selectedCategory !== 'undefined' ? selectedCategory : '';
+  let qParam = (typeof searchQuery !== 'undefined' && searchQuery) ? '&q=' + encodeURIComponent(searchQuery) : '';
+  let qOnlyParam = (typeof searchQuery !== 'undefined' && searchQuery) ? '?q=' + encodeURIComponent(searchQuery) : '';
+  %>
+  <a href="/listings<%= qOnlyParam %>" class="category text-decoration-none <%= currentCat === '' ? 'active-cat' : '' %>">
+    <i class="fa-solid fa-border-all"></i>
+    <span>All</span>
+  </a>
+  <a href="/listings?category=Trending<%= qParam %>" class="category text-decoration-none <%= currentCat === 'Trending' ? 'active-cat' : '' %>">
+    <i class="fa-solid fa-fire"></i>
+    <span>Trending</span>
+  </a>
+  <a href="/listings?category=Farms<%= qParam %>" class="category text-decoration-none <%= currentCat === 'Farms' ? 'active-cat' : '' %>">
+    <i class="fa-solid fa-tractor"></i>
+    <span>Farms</span>
+  </a>
+  <a href="/listings?category=Pools<%= qParam %>" class="category text-decoration-none <%= currentCat === 'Pools' ? 'active-cat' : '' %>">
+    <i class="fa-solid fa-water-ladder"></i>
+    <span>Pools</span>
+  </a>
+  <a href="/listings?category=Mountains<%= qParam %>" class="category text-decoration-none <%= currentCat === 'Mountains' ? 'active-cat' : '' %>">
+    <i class="fa-solid fa-mountain"></i>
+    <span>Mountains</span>
+  </a>
+  <a href="/listings?category=Castles<%= qParam %>" class="category text-decoration-none <%= currentCat === 'Castles' ? 'active-cat' : '' %>">
+    <i class="fa-brands fa-fort-awesome"></i>
+    <span>Castles</span>
+  </a>
+  <a href="/listings?category=Lakes<%= qParam %>" class="category text-decoration-none <%= currentCat === 'Lakes' ? 'active-cat' : '' %>">
+    <i class="fa-solid fa-water"></i>
+    <span>Lakes</span>
+  </a>
+  <a href="/listings?category=Views<%= qParam %>" class="category text-decoration-none <%= currentCat === 'Views' ? 'active-cat' : '' %>">
+    <i class="fa-solid fa-mountain-sun"></i>
+    <span>Views</span>
+  </a>
+  <a href="/listings?category=Arctic<%= qParam %>" class="category text-decoration-none <%= currentCat === 'Arctic' ? 'active-cat' : '' %>">
+    <i class="fa-regular fa-snowflake"></i>
+    <span>Arctic</span>
+  </a>
+  <a href="/listings?category=Beachfront<%= qParam %>" class="category text-decoration-none <%= currentCat === 'Beachfront' ? 'active-cat' : '' %>">
+    <i class="fa-solid fa-umbrella-beach"></i>
+    <span>Beachfront</span>
+  </a>
+  <a href="/listings?category=Cities<%= qParam %>" class="category text-decoration-none <%= currentCat === 'Cities' ? 'active-cat' : '' %>">
+    <i class="fa-solid fa-city"></i>
+    <span>Cities</span>
+  </a>
+  <a href="/listings?category=Boats<%= qParam %>" class="category text-decoration-none <%= currentCat === 'Boats' ? 'active-cat' : '' %>">
+    <i class="fa-solid fa-ship"></i>
+    <span>Boats</span>
+  </a>
+  <a href="/listings?category=Skiing<%= qParam %>" class="category text-decoration-none <%= currentCat === 'Skiing' ? 'active-cat' : '' %>">
+    <i class="fa-solid fa-person-skiing-nordic"></i>
+    <span>Skiing</span>
+  </a>
+  <a href="/listings?category=Towers<%= qParam %>" class="category text-decoration-none <%= currentCat === 'Towers' ? 'active-cat' : '' %>">
+    <i class="fa-solid fa-tower-observation"></i>
+    <span>Towers</span>
+  </a>
 </div>
