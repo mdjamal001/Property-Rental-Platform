@@ -1,3 +1,3 @@
 The project can be checked out here 👇🏼
 
-https://majorproject1-s5vc.onrender.com/listings
+https://property-rental-platform-kthp.onrender.com/listings
