@@ -259,16 +259,16 @@
       });
 
       // --- 3. Map & Draggable Pin ---
-      let defaultLat = 15.2993; // Default Goa
-      let defaultLng = 73.8567;
+      const initialLat = 15.2993; // Default Goa
+      const initialLng = 73.8567;
 
-      const map = L.map('createMap').setView([defaultLat, defaultLng], 12);
+      const map = L.map('createMap').setView([initialLat, initialLng], 12);
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         maxZoom: 19,
         attribution: '&copy; OpenStreetMap'
       }).addTo(map);
 
-      const marker = L.marker([defaultLat, defaultLng], { draggable: true }).addTo(map);
+      const marker = L.marker([initialLat, initialLng], { draggable: true }).addTo(map);
 
       function updateCoords(lat, lng) {
         document.getElementById('latInput').value = lat.toFixed(6);

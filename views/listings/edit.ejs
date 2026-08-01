@@ -274,16 +274,16 @@ document.addEventListener("DOMContentLoaded", function() {
   });
 
   // --- 3. Map & Draggable Pin ---
-  let defaultLat = <%= defaultLat %>;
-  let defaultLng = <%= defaultLng %>;
+  const initialLat = <%= defaultLat %>;
+  const initialLng = <%= defaultLng %>;
 
-  const map = L.map('editMap').setView([defaultLat, defaultLng], 13);
+  const map = L.map('editMap').setView([initialLat, initialLng], 13);
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     maxZoom: 19,
     attribution: '&copy; OpenStreetMap'
   }).addTo(map);
 
-  const marker = L.marker([defaultLat, defaultLng], { draggable: true }).addTo(map);
+  const marker = L.marker([initialLat, initialLng], { draggable: true }).addTo(map);
 
   function updateCoords(lat, lng) {
     document.getElementById('latInput').value = lat.toFixed(6);
